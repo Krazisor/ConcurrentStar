@@ -1,11 +1,13 @@
-package com.yuyuan.thumb.mapper;
+package org.example.thumb.mapper;
 
-import com.yuyuan.thumb.model.entity.Thumb;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import org.example.thumb.model.entity.Thumb;
 
 /**
  * @author pine
  */
+@Mapper
 public interface ThumbMapper extends BaseMapper<Thumb> {
 
 }

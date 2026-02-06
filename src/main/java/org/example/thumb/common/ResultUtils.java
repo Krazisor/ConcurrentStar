@@ -1,4 +1,4 @@
-package com.yuyuan.thumb.common;
+package org.example.thumb.common;
 
 /**
  * 返回工具类

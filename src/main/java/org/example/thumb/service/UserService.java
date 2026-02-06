@@ -1,8 +1,8 @@
-package com.yuyuan.thumb.service;
+package org.example.thumb.service;
 
-import com.yuyuan.thumb.model.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.thumb.model.entity.User;
 
 /**
  * @author pine

@@ -1,4 +1,4 @@
-package com.yuyuan.thumb.model.dto.thumb;
+package org.example.thumb.model.dto.thumb;
 
 import lombok.Data;
 

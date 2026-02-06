@@ -1,4 +1,4 @@
-package com.yuyuan.thumb.model.vo;
+package org.example.thumb.model.vo;
 
 import lombok.Data;
 

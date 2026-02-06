@@ -1,4 +1,4 @@
-package com.yuyuan.thumb.model.enums;
+package org.example.thumb.model.enums;
 
 import lombok.Getter;
 

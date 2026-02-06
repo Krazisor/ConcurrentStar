@@ -1,25 +1,24 @@
-package com.yuyuan.thumb.service.impl;
+package org.example.thumb.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.yuyuan.thumb.model.entity.Blog;
-import com.yuyuan.thumb.model.entity.User;
-import com.yuyuan.thumb.model.vo.BlogVO;
-import com.yuyuan.thumb.service.BlogService;
-import com.yuyuan.thumb.mapper.BlogMapper;
-import com.yuyuan.thumb.service.ThumbService;
-import com.yuyuan.thumb.service.UserService;
-import com.yuyuan.thumb.util.RedisKeyUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.example.thumb.constant.ThumbConstant;
+import org.example.thumb.mapper.BlogMapper;
+import org.example.thumb.model.entity.Blog;
+import org.example.thumb.model.entity.Thumb;
+import org.example.thumb.model.entity.User;
+import org.example.thumb.model.vo.BlogVO;
+import org.example.thumb.service.BlogService;
+import org.example.thumb.service.ThumbService;
+import org.example.thumb.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -37,36 +36,35 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog>
     private ThumbService thumbService;
 
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<Object, Object> redisTemplate;
+
 
     @Override
     public BlogVO getBlogVOById(long blogId, HttpServletRequest request) {
         Blog blog = this.getById(blogId);
-        User loginUser = userService.getLoginUser(request);
-        return this.getBlogVO(blog, loginUser);
+        User user = userService.getLoginUser(request);
+        return this.getBlogVO(blog, user);
     }
 
-    @Override
-    public BlogVO getBlogVO(Blog blog, User loginUser) {
+    private BlogVO getBlogVO(Blog blog, User loginUser) {
         BlogVO blogVO = new BlogVO();
         BeanUtil.copyProperties(blog, blogVO);
-
-        if (loginUser != null) {
-            Boolean exist = thumbService.hasThumb(blog.getId(), loginUser.getId());
-            blogVO.setHasThumb(exist);
+        if (loginUser == null) {
+            return blogVO;
         }
-
+        boolean hasThumb = thumbService.hasThumb(blog.getId(), loginUser.getId());
+        blogVO.setHasThumb(hasThumb);
         return blogVO;
     }
 
     @Override
     public List<BlogVO> getBlogVOList(List<Blog> blogList, HttpServletRequest request) {
-        User loginUser = userService.getLoginUser(request);
+        User user = userService.getLoginUser(request);
         Map<Long, Boolean> blogIdHasThumbMap = new HashMap<>();
-        if (ObjUtil.isNotEmpty(loginUser)) {
+        if (ObjUtil.isNotEmpty(user)) {
             List<Object> blogIdList = blogList.stream().map(blog -> blog.getId().toString()).collect(Collectors.toList());
-            // 获取点赞
-            List<Object> thumbList = redisTemplate.opsForHash().multiGet(RedisKeyUtil.getUserThumbKey(loginUser.getId()), blogIdList);
+            // 得到的结果是thumbId类似 1 2 5 7 null 3 ...
+            List<Object> thumbList = redisTemplate.opsForHash().multiGet(ThumbConstant.USER_THUMB_KEY_PREFIX + user.getId(), blogIdList);
             for (int i = 0; i < thumbList.size(); i++) {
                 if (thumbList.get(i) == null) {
                     continue;
@@ -74,7 +72,6 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog>
                 blogIdHasThumbMap.put(Long.valueOf(blogIdList.get(i).toString()), true);
             }
         }
-
         return blogList.stream()
                 .map(blog -> {
                     BlogVO blogVO = BeanUtil.copyProperties(blog, BlogVO.class);

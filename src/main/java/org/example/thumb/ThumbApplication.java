@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ThumbApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ThumbApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ThumbApplication.class, args);
+    }
 
 }

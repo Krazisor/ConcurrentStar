@@ -1,4 +1,4 @@
-package com.yuyuan.thumb.constant;
+package org.example.thumb.constant;
 
 /**
  * @author pine
